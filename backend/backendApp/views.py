@@ -1,3 +1,6 @@
-from django.shortcuts import render
+from django.http import HttpResponse
 
-# Create your views here.
+def home(request):
+    if request.method == 'GET':
+        return HttpResponse("Welcome to the homepage!")
+    return HttpResponse("Method Not Allowed", status=405)  # Handle other methods
