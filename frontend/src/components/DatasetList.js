@@ -15,7 +15,7 @@ function DatasetList() {
     }, []);
 
     const processDataset = (id) => {
-        axios.post(`http://localhost:8000/api/datasets/${id}/process_data/`)
+        axios.post(`http://localhost:8000/datasets/${id}/process_data/`)
             .then(response => {
                 alert('Data processed successfully');
                 // Handle response here, e.g., update UI with new data
