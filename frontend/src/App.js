@@ -1,11 +1,11 @@
 import logo from './logo.svg';
 import './App.css';
-import Front from './components/front';
+import DatasetUpload from './components/DatasetUpload';
 
 function App() {
   return (
     <div className="App">
-<Front/>
+<DatasetUpload/>
     </div>
   );
 }
