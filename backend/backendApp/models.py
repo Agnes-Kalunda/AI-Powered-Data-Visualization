@@ -9,5 +9,5 @@ class Dataset(models.Model):
 
 class DataPoint(models.Model):
     dataset = models.ForeignKey(Dataset, on_delete=models.CASCADE)
-    x = models.FloatField() 
+    x = models.FloatField()
     y = models.FloatField()

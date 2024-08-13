@@ -9,7 +9,8 @@ from sklearn.linear_model import LinearRegression
 class DatasetViewSet(viewsets.ModelViewSet):
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
-
+    
+   
     @action(detail=True, methods=['post'])
     def process_data(self, request, pk=None):
         dataset = self.get_object()
@@ -23,7 +24,6 @@ class DatasetViewSet(viewsets.ModelViewSet):
         y = df.iloc[:, 1].values
         model = LinearRegression().fit(X, y)
         
-    
         for _, row in df.iterrows():
             DataPoint.objects.create(dataset=dataset, x=row[0], y=row[1])
         
