@@ -3,9 +3,9 @@ from .models import Dataset, DataPoint
 
 @admin.register(Dataset)
 class DatasetAdmin(admin.ModelAdmin):
-    list_display = ('name', 'user', 'uploaded_at')
-    list_filter = ('user', 'uploaded_at')
-    search_fields = ('name', 'user__username')
+    list_display = ('name', 'uploaded_at') 
+    list_filter = ('uploaded_at',)  
+    search_fields = ('name',) 
 
 @admin.register(DataPoint)
 class DataPointAdmin(admin.ModelAdmin):

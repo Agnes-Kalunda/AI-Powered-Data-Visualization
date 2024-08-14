@@ -10,13 +10,12 @@ class DatasetViewSet(viewsets.ModelViewSet):
     queryset = Dataset.objects.all()
     serializer_class = DatasetSerializer
     
-   
     @action(detail=True, methods=['post'])
     def process_data(self, request, pk=None):
         dataset = self.get_object()
         df = pd.read_csv(dataset.file.path)
         
-        # mean of each column
+
         summary = df.mean().to_dict()
         
         # Linear regression on first two columns
