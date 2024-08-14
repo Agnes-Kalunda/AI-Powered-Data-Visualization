@@ -6,6 +6,7 @@ from .models import Dataset, DataPoint
 from .serializers import DatasetSerializer, DataPointSerializer
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+import numpy as np
 
 class DatasetViewSet(viewsets.ModelViewSet):
     queryset = Dataset.objects.all()
@@ -18,36 +19,41 @@ class DatasetViewSet(viewsets.ModelViewSet):
             # Load the dataset file
             df = pd.read_csv(dataset.file.path)
 
-            # Check if there are at least two columns
-            if df.shape[1] < 2:
-                return HttpResponseBadRequest('Dataset must contain at least two columns.')
+            # Check if at least four columns
+            if df.shape[1] < 4:
+                return HttpResponseBadRequest('Dataset must contain at least four columns.')
 
-            # Convert columns to numeric, forcing errors to NaN
-            df = df.apply(pd.to_numeric, errors='coerce')
+            # Convert relevant columns to numeric, forcing errors to NaN
+            df.iloc[:, 2] = pd.to_numeric(df.iloc[:, 2], errors='coerce')
+            df.iloc[:, 3] = pd.to_numeric(df.iloc[:, 3], errors='coerce')
 
-            # Drop rows with NaN values in the first two columns
-            df = df.dropna(subset=[df.columns[0], df.columns[1]])
-            
-            # if rows are enough for regression
+            # Drop rows with NaN values
+            df = df.dropna(subset=[df.columns[2], df.columns[3]])
+
+            # Check if enough valid data points for regression
             if df.shape[0] < 2:
                 return HttpResponseBadRequest('Not enough valid data points for regression.')
 
-            # Mean of each column
-            summary = df.mean().to_dict()
+            # Mean of each column 
+            summary = df.mean(numeric_only=True).to_dict()
 
-            # Linear regression on first two columns
-            X = df.iloc[:, 0].values.reshape(-1, 1)
-            y = df.iloc[:, 1].values
+            # Linear regression on the 3rd and 4th columns
+            X = df.iloc[:, 2].values.reshape(-1, 1)
+            y = df.iloc[:, 3].values
             model = LinearRegression().fit(X, y)
 
-        
+            # Sanitize float values before serialization
+            regression_coefficient = np.clip(model.coef_[0], -1e10, 1e10)
+            regression_intercept = np.clip(model.intercept_, -1e10, 1e10)
+
+            # Save DataPoint instances using proper indexing
             for _, row in df.iterrows():
-                DataPoint.objects.create(dataset=dataset, x=row[0], y=row[1])
+                DataPoint.objects.create(dataset=dataset, x=row.iloc[2], y=row.iloc[3])
 
             return Response({
                 'summary': summary,
-                'regression_coefficient': model.coef_[0],
-                'regression_intercept': model.intercept_
+                'regression_coefficient': regression_coefficient,
+                'regression_intercept': regression_intercept
             })
         except pd.errors.EmptyDataError:
             return HttpResponseBadRequest('The dataset file is empty.')
