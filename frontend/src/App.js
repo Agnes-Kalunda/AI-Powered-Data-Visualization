@@ -5,7 +5,7 @@ import ProcessedDataView from './ProcessedDataView';
 
 function App() {
     const [refreshKey, setRefreshKey] = useState(0);
-    const [currentView, setCurrentView] = useState('list');
+    const [currentView, setCurrentView] = useState('list');  // Default to dataset list view
     const [selectedDatasetId, setSelectedDatasetId] = useState(null);
 
     const handleUploadSuccess = () => {
@@ -24,14 +24,21 @@ function App() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-300 py-8">
-            <h1 className="text-4xl font-bold text-center mb-6 text-indigo-700">AI Data Analysis App</h1>
+            {/* Show title only on the homepage */}
+            {currentView === 'list' && (
+                <h1 className="text-4xl font-bold text-center mb-6 text-indigo-700">
+                    AI Data Analysis App
+                </h1>
+            )}
             <div className="container mx-auto px-4">
-                <DatasetUpload onUploadSuccess={handleUploadSuccess} />
                 {currentView === 'list' ? (
-                    <DatasetList 
-                        key={refreshKey} 
-                        onProcessDataset={handleProcessDataset} 
-                    />
+                    <>
+                        <DatasetUpload onUploadSuccess={handleUploadSuccess} />
+                        <DatasetList 
+                            key={refreshKey} 
+                            onProcessDataset={handleProcessDataset} 
+                        />
+                    </>
                 ) : (
                     <ProcessedDataView 
                         datasetId={selectedDatasetId} 
